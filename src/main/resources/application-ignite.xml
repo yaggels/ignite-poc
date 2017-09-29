@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<!-- Basic configuration for transactional cache. -->
+	<bean id="transactional-cache" class="org.apache.ignite.configuration.CacheConfiguration"
+		abstract="true">
+		<property name="cacheMode" value="PARTITIONED" />
+		<property name="atomicityMode" value="TRANSACTIONAL" />
+		<property name="writeSynchronizationMode" value="FULL_SYNC" />
+		<!-- Sets the expiration policy -->
+		<property name="expiryPolicyFactory">
+			<bean id="expiryPolicy" class="javax.cache.expiry.CreatedExpiryPolicy"
+				factory-method="factoryOf">
+				<constructor-arg>
+					<bean class="javax.cache.expiry.Duration">
+						<constructor-arg value="MINUTES" />
+						<constructor-arg value="1" />
+					</bean>
+				</constructor-arg>
+			</bean>
+		</property>
+	</bean>
+	
+	<!-- Basic configuration for atomic cache. -->
+	<bean id="atomic-cache" class="org.apache.ignite.configuration.CacheConfiguration" abstract="true">
+	    <property name="cacheMode" value="PARTITIONED"/>
+	    <property name="atomicityMode" value="ATOMIC"/>
+	    <property name="writeSynchronizationMode" value="FULL_SYNC"/>
+	</bean>
+
+	<bean id="ignite.cfg" class="org.apache.ignite.configuration.IgniteConfiguration">
+		<property name="igniteInstanceName" value="hibernate-grid" />
+		<property name="cacheConfiguration">
+			<list>
+				<!-- Need to list every entity that needs to be cached -->
+				<bean parent="transactional-cache">
+					<property name="name" value="com.sapient.ignite.poc.beans.User" />
+				</bean>
+				
+				<!-- Configuration for update timestamps cache. -->
+	            <bean parent="atomic-cache">
+	                <property name="name" value="org.hibernate.cache.spi.UpdateTimestampsCache"/>
+	            </bean>
+	 
+	            <!-- Configuration for query result cache. -->
+	            <bean parent="atomic-cache">
+	                <property name="name" value="org.hibernate.cache.internal.StandardQueryCache"/>
+	            </bean>
+			</list>
+		</property>
+	</bean>
+</beans>
