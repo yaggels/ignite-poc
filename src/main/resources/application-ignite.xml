@@ -18,18 +18,19 @@
 				<constructor-arg>
 					<bean class="javax.cache.expiry.Duration">
 						<constructor-arg value="MINUTES" />
-						<constructor-arg value="1" />
+						<constructor-arg value="5" />
 					</bean>
 				</constructor-arg>
 			</bean>
 		</property>
 	</bean>
-	
+
 	<!-- Basic configuration for atomic cache. -->
-	<bean id="atomic-cache" class="org.apache.ignite.configuration.CacheConfiguration" abstract="true">
-	    <property name="cacheMode" value="PARTITIONED"/>
-	    <property name="atomicityMode" value="ATOMIC"/>
-	    <property name="writeSynchronizationMode" value="FULL_SYNC"/>
+	<bean id="atomic-cache" class="org.apache.ignite.configuration.CacheConfiguration"
+		abstract="true">
+		<property name="cacheMode" value="PARTITIONED" />
+		<property name="atomicityMode" value="ATOMIC" />
+		<property name="writeSynchronizationMode" value="FULL_SYNC" />
 	</bean>
 
 	<bean id="ignite.cfg" class="org.apache.ignite.configuration.IgniteConfiguration">
@@ -40,17 +41,40 @@
 				<bean parent="transactional-cache">
 					<property name="name" value="com.sapient.ignite.poc.beans.User" />
 				</bean>
-				
+
 				<!-- Configuration for update timestamps cache. -->
-	            <bean parent="atomic-cache">
-	                <property name="name" value="org.hibernate.cache.spi.UpdateTimestampsCache"/>
-	            </bean>
-	 
-	            <!-- Configuration for query result cache. -->
-	            <bean parent="atomic-cache">
-	                <property name="name" value="org.hibernate.cache.internal.StandardQueryCache"/>
-	            </bean>
+				<bean parent="atomic-cache">
+					<property name="name"
+						value="org.hibernate.cache.spi.UpdateTimestampsCache" />
+				</bean>
+
+				<!-- Configuration for query result cache. -->
+				<bean parent="atomic-cache">
+					<property name="name"
+						value="org.hibernate.cache.internal.StandardQueryCache" />
+				</bean>
 			</list>
+		</property>
+		<property name="memoryConfiguration">
+			<bean class="org.apache.ignite.configuration.MemoryConfiguration">
+				<!-- Setting a name of the default memory policy. Required to set only 
+					if the default policy's parameters are overridden like it's done below. -->
+				<property name="defaultMemoryPolicyName" value="Default_Region" />
+				<property name="memoryPolicies">
+					<list>
+						<!-- Default memory region that grows endlessly. A cache is bound to 
+							this memory region unless it sets another one in its CacheConfiguration. -->
+						<bean class="org.apache.ignite.configuration.MemoryPolicyConfiguration">
+							<property name="name" value="Default_Region" />
+							<property name="metricsEnabled" value="true" />
+							<!-- 5 KB initial size. -->
+							<property name="initialSize" value="#{10 * 1024 * 1024}" />
+							<!-- 10 KB maximum size. -->
+							<property name="maxSize" value="#{18 * 1024 * 1024}" />
+						</bean>
+					</list>
+				</property>
+			</bean>
 		</property>
 	</bean>
 </beans>

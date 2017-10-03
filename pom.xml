@@ -21,7 +21,7 @@
 		<!-- aspect j -->
 		<version.aspectj>1.8.10</version.aspectj>
 		<!-- Apache Ignite -->
-		<version.ignite>2.1.0</version.ignite>
+		<version.ignite>2.2.0</version.ignite>
 	</properties>
 
 	<parent>

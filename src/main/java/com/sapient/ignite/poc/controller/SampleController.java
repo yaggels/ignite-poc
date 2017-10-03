@@ -1,7 +1,11 @@
 package com.sapient.ignite.poc.controller;
 
+import java.util.Collection;
 import java.util.List;
 
+import org.apache.ignite.Ignite;
+import org.apache.ignite.Ignition;
+import org.apache.ignite.MemoryMetrics;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpStatus;
@@ -55,6 +59,12 @@ public class SampleController {
 		userRepository.updateUser(user);
 		return new ResponseEntity<>(user, HttpStatus.OK);
 	}
-	
-
+	@RequestMapping(value="/getmetrics", produces = {"application/json"}, method = RequestMethod.GET)
+	public ResponseEntity<Collection<MemoryMetrics>> GetMetrics(){
+		Ignite ignite = Ignition.ignite("hibernate-grid");
+		
+		// Get the metrics of all the memory regions defined on the node.
+		Collection<MemoryMetrics> regionsMetrics = ignite.memoryMetrics();
+		return new ResponseEntity<>(regionsMetrics, HttpStatus.OK);
+	}
 }
