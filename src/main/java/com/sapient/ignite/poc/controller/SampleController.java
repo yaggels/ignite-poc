@@ -1,11 +1,17 @@
 package com.sapient.ignite.poc.controller;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ignite.Ignite;
+import org.apache.ignite.IgniteCache;
 import org.apache.ignite.Ignition;
 import org.apache.ignite.MemoryMetrics;
+import org.apache.ignite.cache.CacheMetrics;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpStatus;
@@ -20,6 +26,7 @@ import com.sapient.ignite.poc.repositories.UserRepository;
 
 @RestController
 public class SampleController {
+	private static Logger logger = LogManager.getLogger(SampleController.class);
 	
 	@Autowired
 	private ApplicationContext context;
@@ -60,11 +67,22 @@ public class SampleController {
 		return new ResponseEntity<>(user, HttpStatus.OK);
 	}
 	@RequestMapping(value="/getmetrics", produces = {"application/json"}, method = RequestMethod.GET)
-	public ResponseEntity<Collection<MemoryMetrics>> GetMetrics(){
+	public ResponseEntity<Map<String, Object>> GetMetrics(){
 		Ignite ignite = Ignition.ignite("hibernate-grid");
 		
 		// Get the metrics of all the memory regions defined on the node.
-		Collection<MemoryMetrics> regionsMetrics = ignite.memoryMetrics();
-		return new ResponseEntity<>(regionsMetrics, HttpStatus.OK);
+		Collection<MemoryMetrics> memoryMetrics = ignite.memoryMetrics();
+		// Get the cache metrics
+		CacheMetrics cacheMetrics = ignite.cache("com.sapient.ignite.poc.beans.User").metrics();
+		
+		Map<String, Object> metricsMap = new HashMap<>();
+		metricsMap.put("MemoryMetrics", memoryMetrics);
+		metricsMap.put("cacheMetrics", cacheMetrics);
+		
+		return new ResponseEntity<>(metricsMap, HttpStatus.OK);
+	}
+	@RequestMapping(value="/gc", method=RequestMethod.GET)
+	public void GarbageCollect() {
+		System.gc();
 	}
 }
