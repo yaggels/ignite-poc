@@ -24,15 +24,18 @@
 	<context:annotation-config />
 	<context:property-placeholder location="classpath:util.properties" />
 
+	<!-- This tag is to enable AOP -->
+	<aop:aspectj-autoproxy />
+	
 	<!-- This tag will configure context for annotations and scan packages for 
 		components and wire them -->
 	<context:component-scan base-package="com.sapient.ignite.poc" />
-	
+
 	<!-- Inject Apache Ignite -->
 	<bean id="cacheManager" class="org.apache.ignite.cache.spring.SpringCacheManager">
 		<property name="configurationPath" value="classpath:application-ignite.xml" />
 	</bean>
-
+	
 	<!-- Enable annotation-driven caching. -->
 	<cache:annotation-driven />
 
