@@ -67,10 +67,6 @@
 						<bean class="org.apache.ignite.configuration.MemoryPolicyConfiguration">
 							<property name="name" value="Default_Region" />
 							<property name="metricsEnabled" value="true" />
-							<!-- 5 KB initial size. -->
-							<property name="initialSize" value="#{10 * 1024 * 1024}" />
-							<!-- 10 KB maximum size. -->
-							<property name="maxSize" value="#{18 * 1024 * 1024}" />
 						</bean>
 					</list>
 				</property>
